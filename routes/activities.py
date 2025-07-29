@@ -15,13 +15,15 @@ from datetime import datetime
 import pandas as pd
 from io import BytesIO
 from sqlalchemy import func
+from datetime import datetime, timedelta
+from collections import defaultdict
 
-from datetime import timedelta
 
 def parse_horas(horas_str):
     """Convierte 'HH:MM:SS' a timedelta"""
     h, m, s = map(int, horas_str.split(":"))
     return timedelta(hours=h, minutes=m, seconds=s)
+
 
 activities_bp = Blueprint("activities", __name__)
 
@@ -44,19 +46,40 @@ def dashboard():
     )
 
     # Total de horas del mes (en horas decimales)
-    total_horas = sum([parse_horas(act.horas).total_seconds() for act in actividades]) / 3600
+    def parse_horas(horas_str):
+        h, m, s = map(int, horas_str.split(":"))
+        return timedelta(hours=h, minutes=m, seconds=s)
 
-    # Desglose por grupo (nombre -> total de horas)
-    horas_por_grupo = (
-        db.session.query(Grupo.nombre, func.sum(Activity.horas))
-        .join(Activity, Grupo.id == Activity.grupo_id)
+    total_horas = (
+        sum([parse_horas(act.horas).total_seconds() for act in actividades]) / 3600
+    )
+
+    # --- Desglose por grupo calculado manualmente ---
+    actividades_grupo = (
+        db.session.query(Activity, Grupo.nombre)
+        .join(Grupo, Grupo.id == Activity.grupo_id)
         .filter(
             db.extract("month", Activity.fecha) == mes,
             db.extract("year", Activity.fecha) == anio,
             Activity.user_id == current_user.id,
         )
-        .group_by(Grupo.nombre)
         .all()
+    )
+
+    horas_por_grupo = defaultdict(int)
+
+    for actividad, grupo_nombre in actividades_grupo:
+        h, m, s = map(int, actividad.horas.split(":"))
+        total_segundos = h * 3600 + m * 60 + s
+        horas_por_grupo[grupo_nombre] += total_segundos
+
+    return render_template(
+        "dashboard.html",
+        actividades=actividades,
+        mes=mes,
+        anio=anio,
+        total_horas=total_horas,
+        horas_por_grupo=horas_por_grupo,
     )
 
     return render_template(
