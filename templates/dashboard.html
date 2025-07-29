@@ -35,20 +35,22 @@
   </div>
 </form>
 
-{% if actividades %}
+{% if actividades_por_dia %}
+{% for fecha, actividades in actividades_por_dia.items() %}
+<h5 class="mt-4">{{ fecha }}</h5>
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>Fecha</th>
       <th>Grupo</th>
       <th>Descripción</th>
       <th>Horas</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
+    {% set total_segundos_dia = 0 %}
     {% for act in actividades %}
     <tr>
-      <td>{{ act.fecha.strftime('%Y-%m-%d') }}</td>
       <td>{{ act.grupo.nombre }}</td>
       <td>{{ act.descripcion }}</td>
       <td>{{ act.horas }}</td>
@@ -62,10 +64,23 @@
         </form>
       </td>
     </tr>
+    {% set h, m, s = act.horas.split(':') %}
+    {% set total_segundos_dia = total_segundos_dia + (h | int) * 3600 + (m | int) * 60 + (s | int) %}
     {% endfor %}
+    <tr class="table-secondary">
+      <td colspan="2"><strong>Total del día</strong></td>
+      <td colspan="2">
+        <strong>
+          {{ "%.2f"|format((totales_por_dia[fecha] or 0) / 3600) }} horas
+        </strong>
+      </td>
+
+    </tr>
   </tbody>
 </table>
+{% endfor %}
 {% else %}
 <p>No hay actividades registradas en este mes.</p>
 {% endif %}
+
 {% endblock %}

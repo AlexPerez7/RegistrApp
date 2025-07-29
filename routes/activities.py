@@ -46,15 +46,11 @@ def dashboard():
     )
 
     # Total de horas del mes (en horas decimales)
-    def parse_horas(horas_str):
-        h, m, s = map(int, horas_str.split(":"))
-        return timedelta(hours=h, minutes=m, seconds=s)
-
     total_horas = (
         sum([parse_horas(act.horas).total_seconds() for act in actividades]) / 3600
     )
 
-    # --- Desglose por grupo calculado manualmente ---
+    # Desglose por grupo (manual)
     actividades_grupo = (
         db.session.query(Activity, Grupo.nombre)
         .join(Grupo, Grupo.id == Activity.grupo_id)
@@ -67,24 +63,27 @@ def dashboard():
     )
 
     horas_por_grupo = defaultdict(int)
-
     for actividad, grupo_nombre in actividades_grupo:
         h, m, s = map(int, actividad.horas.split(":"))
         total_segundos = h * 3600 + m * 60 + s
         horas_por_grupo[grupo_nombre] += total_segundos
 
-    return render_template(
-        "dashboard.html",
-        actividades=actividades,
-        mes=mes,
-        anio=anio,
-        total_horas=total_horas,
-        horas_por_grupo=horas_por_grupo,
-    )
+    # Agrupar actividades por día y calcular totales por día
+    actividades_por_dia = defaultdict(list)
+    totales_por_dia = defaultdict(int)
+
+    for act in actividades:
+        fecha_str = act.fecha.strftime("%Y-%m-%d")
+        actividades_por_dia[fecha_str].append(act)
+
+        h, m, s = map(int, act.horas.split(":"))
+        total_segundos = h * 3600 + m * 60 + s
+        totales_por_dia[fecha_str] += total_segundos
 
     return render_template(
         "dashboard.html",
-        actividades=actividades,
+        actividades_por_dia=actividades_por_dia,
+        totales_por_dia=totales_por_dia,
         mes=mes,
         anio=anio,
         total_horas=total_horas,
@@ -169,7 +168,7 @@ def exportar_actividades():
         [
             {
                 "Fecha": act.fecha.strftime("%Y-%m-%d"),
-                "Grupo": act.grupo,
+                "Grupo": act.grupo.nombre,  # <-- cambio aquí
                 "Descripción": act.descripcion,
                 "Horas": act.horas,
             }

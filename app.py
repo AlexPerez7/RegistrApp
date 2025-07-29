@@ -1,11 +1,10 @@
-# app.py
-
-from flask import Flask, render_template
-from flask_login import LoginManager
+from flask import Flask, redirect, render_template, url_for
+from flask_login import LoginManager, current_user
 from models import db, User
 from routes.auth import auth
 from routes.groups import groups_bp
 from routes.activities import activities_bp
+
 
 def create_app():
     app = Flask(__name__)
@@ -30,9 +29,12 @@ def create_app():
 
     @app.route("/")
     def index():
-        return render_template("base.html")
+        if current_user.is_authenticated:
+            return redirect(url_for("activities.dashboard"))
+        return render_template("index.html")
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app()
