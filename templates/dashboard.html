@@ -2,6 +2,21 @@
 {% block content %}
 <h2>Actividades de {{ mes }}/{{ anio }}</h2>
 
+<div class="mb-3">
+  <strong>Total de horas:</strong> {{ "%.2f"|format(total_horas) }} horas
+</div>
+
+{% if horas_por_grupo %}
+<div class="mb-3">
+  <strong>Horas por grupo:</strong>
+  <ul class="mb-0">
+    {% for grupo, horas in horas_por_grupo %}
+    <li>{{ grupo }}: {{ "%.2f"|format(horas / 3600) }} horas</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
 <form method="GET" class="row g-2 mb-3">
   <div class="col-auto">
     <select name="mes" class="form-select">
@@ -15,7 +30,8 @@
   </div>
   <div class="col-auto">
     <button type="submit" class="btn btn-primary">Filtrar</button>
-    <a href="{{ url_for('activities.exportar_actividades', mes=mes, anio=anio) }}" class="btn btn-success ms-2">Exportar a
+    <a href="{{ url_for('activities.exportar_actividades', mes=mes, anio=anio) }}" class="btn btn-success ms-2">Exportar
+      a
       Excel</a>
   </div>
 </form>
