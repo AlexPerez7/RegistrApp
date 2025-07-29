@@ -1,0 +1,17 @@
+# Entorno virtual
+.venv/
+
+# Archivos de base de datos
+*.db
+instance/
+
+# Archivos temporales / cache
+__pycache__/
+*.pyc
+
+# Archivos específicos de VSCode / PyCharm
+.vscode/
+.idea/
+
+# Exportaciones
+*.xlsx

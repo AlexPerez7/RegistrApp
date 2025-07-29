@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Actividades de {{ mes }}/{{ anio }}</h2>
+
+<form method="GET" class="row g-2 mb-3">
+  <div class="col-auto">
+    <select name="mes" class="form-select">
+      {% for m in range(1, 13) %}
+      <option value="{{ m }}" {% if m==mes %}selected{% endif %}>{{ m }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <input type="number" name="anio" class="form-control" value="{{ anio }}">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="{{ url_for('activities.exportar_actividades', mes=mes, anio=anio) }}" class="btn btn-success ms-2">Exportar a
+      Excel</a>
+  </div>
+</form>
+
+{% if actividades %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Grupo</th>
+      <th>Descripción</th>
+      <th>Horas</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for act in actividades %}
+    <tr>
+      <td>{{ act.fecha.strftime('%Y-%m-%d') }}</td>
+      <td>{{ act.grupo.nombre }}</td>
+      <td>{{ act.descripcion }}</td>
+      <td>{{ act.horas }}</td>
+      <td>
+        <a href="{{ url_for('activities.editar_actividad', id=act.id) }}" class="btn btn-sm btn-warning">Editar</a>
+        <form action="{{ url_for('activities.eliminar_actividad', id=act.id) }}" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-sm btn-danger"
+            onclick="return confirm('¿Estás seguro de que quieres eliminar esta actividad?')">
+            Eliminar
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No hay actividades registradas en este mes.</p>
+{% endif %}
+{% endblock %}

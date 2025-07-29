@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrar nueva actividad</h2>
+<form method="POST">
+  <label>Fecha:</label>
+  <input type="date" name="fecha" class="form-control mb-2" required>
+
+  <div class="mb-3">
+    <label for="grupo_id" class="form-label">Grupo de tarea:</label>
+    <select name="grupo_id" id="grupo_id" class="form-select" required>
+      <option value="">Selecciona un grupo</option>
+      {% for grupo in grupos %}
+        <option value="{{ grupo.id }}">{{ grupo.nombre }}</option>
+      {% endfor %}
+    </select>
+    <small><a href="{{ url_for('groups.nuevo_grupo') }}">Agregar nuevo grupo</a></small>
+  </div>
+
+  <label>Descripción:</label>
+  <textarea name="descripcion" class="form-control mb-2" required></textarea>
+
+  <label>Horas (HH:MM:SS):</label>
+  <input type="text" name="horas" class="form-control mb-3" value="01:00:00" required>
+
+  <button type="submit" class="btn btn-primary">Registrar actividad</button>
+</form>
+{% endblock %}

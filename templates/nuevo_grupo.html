@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Crear nuevo grupo</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre del grupo:</label>
+      <input type="text" name="nombre" id="nombre" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('activities.dashboard') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

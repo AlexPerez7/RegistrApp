@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Editar Actividad</h2>
+  <form method="POST">
+    <input type="date" name="fecha" value="{{ actividad.fecha }}" required class="form-control mb-2">
+    <input type="text" name="grupo" value="{{ actividad.grupo }}" required class="form-control mb-2">
+    <textarea name="descripcion" required class="form-control mb-2">{{ actividad.descripcion }}</textarea>
+    <input type="time" name="horas" value="{{ actividad.horas }}" required class="form-control mb-2">
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="{{ url_for('activities.dashboard') }}" class="btn btn-secondary ms-2">Cancelar</a>
+  </form>
+{% endblock %}
